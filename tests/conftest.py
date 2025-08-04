@@ -26,7 +26,7 @@ TestingSessionLocal = sessionmaker(autocommit = False, autoflush= False, bind = 
 @pytest.fixture(scope = "function")
 def db_session():
     Base.metadata.create_all(bind = engine)
-    session = TestingSessionLocal
+    session = TestingSessionLocal()
 
     try:
         yield session
@@ -36,7 +36,7 @@ def db_session():
         Base.metadata.drop_all(bind = engine)
 
 @pytest.fixture(scope = "function")
-def cient(db_session):
+def client(db_session):
     def override_get_db():
         try:
             yield db_session
@@ -66,12 +66,16 @@ def test_user(db_session):
 
 @pytest.fixture(scope = "function")
 def auth_headers(test_user):
-    token = create_access_token(data = {"sub", test_user.email})
+    token = create_access_token(data = {"sub": test_user.email})
 
-    return {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json"
+    headers =  {
+        "Authorization": f"Bearer {token}"
     }
+
+    print(f"DEBUG: token = {token[:50]}...")  # Debug line
+    print(f"DEBUG: headers = {headers}")  
+
+    return headers 
 
 @pytest.fixture(scope = "function")
 def sample_politician(db_session):
@@ -99,12 +103,12 @@ def sample_trades(db_session, sample_politician):
             politician_name = "Nancy Pelosi",
             chamber = "House",
             party = "Democratic",
-            ticker = "APPL",
+            ticker = "AAPL",
             trade_type = "Buy",
             estimated_amount = 25000.0,
             transaction_date = datetime(2024, 1, 15),
-            discolusure_date = datetime(2024, 2, 1),
-            disclosure_delay_days = 17,
+            disclosure_date = datetime(2024, 2, 1),
+            disclosure_delay_days=17,
             source = "Test"
         ),
         Trade(
@@ -115,8 +119,8 @@ def sample_trades(db_session, sample_politician):
             trade_type = "Sell",
             estimated_amount = 35000.0,
             transaction_date = datetime(2024, 1, 20),
-            disclosure_data = datetime(2024, 2, 5),
-            disclosure_delay_days = 16,
+            disclosure_date = datetime(2024, 2, 5),
+            disclosure_delay_days=16,
             source = "Test"
         )
     ]

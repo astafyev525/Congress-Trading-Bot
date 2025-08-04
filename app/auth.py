@@ -61,7 +61,7 @@ def create_access_token(data: dict) -> str:
 
 def verify_token(token:str) -> dict:
     try:
-        payload = jwt.encode(token, settings.JWT_SECRET_KEY, algorithm=[ALGORITHM])
+        payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
         if email is None:
             raise HTTPException(
@@ -78,11 +78,11 @@ def verify_token(token:str) -> dict:
 def get_user_by_email(db: Session, email: str) -> Optional[User]:
     return db.query(User).filter(User.email == email).first()
 
-def authenticate_user(db: Session, email: str, password: str) -> Optional[str]:
+def authenticate_user(db: Session, email: str, password: str) -> Optional[User]:
     user = get_user_by_email(db, email)
     if not user:
         return None
-    if not verify_password(password, User.hashed_password):
+    if not verify_password(password, user.hashed_password):
         return None
     return user
 
