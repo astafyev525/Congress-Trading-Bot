@@ -68,10 +68,8 @@ python -m app.main
 
 ### 3. Docker Deployment (Recommended)
 ```bash
-# Copy and configure environment file for Docker
-cp .env.docker.example .env.docker
-# Edit .env.docker and add your real FMP API key
-
+# Create .env.docker
+touch .env.docker
 # Start all services
 docker-compose up --build
 
