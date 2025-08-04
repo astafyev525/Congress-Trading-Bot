@@ -6,6 +6,7 @@ from celery.schedules import crontab
 from app.config import get_settings
 from app.database import SessionLocal
 from app.services import TradeService, PoliticianService
+import os
 
 logging.basicConfig(level = logging.INFO)
 logger = logging.getLogger(__name__)
@@ -13,9 +14,9 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 
 celery_app = Celery(
-    "congressional-trading-tasks",
-    broker = "redis://localhost:6379/0",
-    backend="redis://localhost:6379/1"
+    "congressional_trading_tasks",
+    broker=os.getenv("REDIS_URL", "redis://redis:6379/0"),
+    backend=os.getenv("REDIS_URL", "redis://redis:6379/1")
 )
 
 celery_app.conf.update(
