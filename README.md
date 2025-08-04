@@ -248,16 +248,6 @@ celery -A app.tasks beat --loglevel=info
 - **Rate Limiting:** API endpoint protection (configurable)
 - **SQL Injection Prevention:** SQLAlchemy ORM protection
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes with tests
-4. Ensure all tests pass (`pytest tests/ -v`)
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
-
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -274,5 +264,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **💼 LinkedIn:** [Your LinkedIn Profile](https://linkedin.com/in/maxwell-astafyev)
 
 ---
-
-*Built with ❤️ for transparency in government trading*
