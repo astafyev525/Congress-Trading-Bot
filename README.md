@@ -261,6 +261,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
   
-**💼 LinkedIn:** [Your LinkedIn Profile](https://linkedin.com/in/maxwell-astafyev)
+**💼 LinkedIn:** [LinkedIn](https://linkedin.com/in/maxwell-astafyev)
 
 ---
