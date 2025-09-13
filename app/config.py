@@ -13,6 +13,11 @@ class Settings(BaseSettings):
         "http://localhost:8080", 
         "http://127.0.0.1:3000"
     ]
+    ALPACA_API_KEY: str = ""
+    ALPACA_SECRET_KEY: str = ""
+    ALPACA_PAPER_TRADING: bool = True
+    ENABLE_TRADING_BOT: bool = False
+    MAX_TRADE_AMOUNT: float = 1000.0
     
     class Config:
         env_file = ".env" 

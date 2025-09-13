@@ -12,6 +12,7 @@ class Trade(Base):
     state = Column(String(50))
     ticker = Column(String(10), nullable = False, index = True)
     company_name = Column(String(200))
+    processed_for_trading = Column(Boolean, default=False)
 
     trade_type = Column(String(20), nullable = False)
     amount_range = Column(String(50))
@@ -142,3 +143,34 @@ class User(Base):
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "last_login": self.last_login.isoformat() if self.last_login else None
         }
+class TradingAccount(Base):
+       __tablename__ = "trading_accounts"
+       id = Column(Integer, primary_key=True, index=True)
+       user_id = Column(Integer, ForeignKey("users.id"))
+       alpaca_api_key = Column(String(255))
+       alpaca_secret_key = Column(String(255))
+       account_type = Column(String(20), default="paper")
+       is_active = Column(Boolean, default=True)
+       created_at = Column(DateTime, default=datetime.now(timezone.utc))
+class BotTrade(Base):
+       __tablename__ = "bot_trades"
+       id = Column(Integer, primary_key=True, index=True)
+       user_id = Column(Integer, ForeignKey("users.id"))
+       congressional_trade_id = Column(Integer, ForeignKey("trades.id"))
+       symbol = Column(String(10), nullable=False)
+       side = Column(String(10), nullable=False)
+       quantity = Column(Float)
+       price = Column(Float)
+       alpaca_order_id = Column(String(100))
+       profit_loss = Column(Float, default=0.0)
+       created_at = Column(DateTime, default=datetime.now(timezone.utc))
+
+class BotSettings(Base):
+       __tablename__ = "bot_settings"
+       id = Column(Integer, primary_key=True, index=True)
+       user_id = Column(Integer, ForeignKey("users.id"))
+       is_active = Column(Boolean, default=False)
+       max_trade_amount = Column(Float, default=1000.0)
+       follow_politicians = Column(Text)  # JSON string
+       strategy = Column(String(50), default="copy_trades")
+       updated_at = Column(DateTime, default=datetime.now(timezone.utc))
