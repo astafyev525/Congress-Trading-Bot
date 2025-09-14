@@ -14,6 +14,7 @@ from app.auth import (
     authenticate_user, create_user, create_access_token,
     get_current_user, get_current_active_user
 )
+from app.trading_endpoints import router as trading_router
 
 logging.basicConfig(level = logging.INFO)
 logger = logging.getLogger(__name__)
@@ -58,6 +59,8 @@ app = FastAPI(
 
     lifespan = lifespan
 )
+
+app.include_router(trading_router)
 
 app.add_middleware(
     CORSMiddleware,

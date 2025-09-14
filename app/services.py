@@ -146,7 +146,7 @@ class TradeService:
             transaction_date = trade_data.transaction_date,
             disclosure_date = trade_data.disclosure_date,
             disclosure_delay_days = disclosure_delay,
-
+            processed_for_trading = False,
             source = "FMP",
             created_at = datetime.now(timezone.utc)
         )

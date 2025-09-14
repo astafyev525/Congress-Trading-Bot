@@ -50,6 +50,10 @@ celery_app.conf.beat_schedule = {
     'cleanup-logs-weekly': {
         'task': 'app.tasks.cleanup_task',
         'schedule': crontab(hour = 3, minute = 0, day_of_week= 0)
+    },
+    'process-congressional-trades-for-trading': {
+    'task': 'app.trading_tasks.process_new_congressional_trades',
+    'schedule': crontab(minute='*/30'),  
     }
 
 }

@@ -1,264 +1,295 @@
-# Congressional Trading Analytics API 📊
+# Congressional Trading Analytics + Basic Trading Bot 🏛️📊
 
-A comprehensive FastAPI-based backend service for tracking and analyzing congressional stock trades with real-time data integration, authentication, and background processing capabilities.
+A **FastAPI-based congressional trading analytics platform** with a **basic automated trading bot** that can mirror congressional stock trades using Alpaca API integration.
 
 ![Python](https://img.shields.io/badge/python-v3.9+-blue.svg)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-blue.svg)
+![Alpaca](https://img.shields.io/badge/Alpaca-Trading-orange.svg)
 ![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)
-![Tests](https://img.shields.io/badge/Tests-100%25%20Pass-brightgreen.svg)
 
-## 🚀 Features
+## 🚀 What This System Does
 
-### Core Functionality
-- **📈 Real-time Congressional Trade Tracking** - Integration with Financial Modeling Prep API
-- **🔐 JWT Authentication System** - Secure user registration, login, and protected routes
-- **📊 Advanced Analytics** - Trade performance analysis, politician rankings, and insights
-- **⚡ Background Job Processing** - Automated data synchronization with Celery
-- **🔍 Comprehensive Search & Filtering** - By politician, ticker, date range, trade type
-- **📱 RESTful API Design** - Clean, documented endpoints with OpenAPI/Swagger
+### **Congressional Trading Analytics (Core Features)**
+- **📊 Real-time Data**: Fetches congressional trades from Financial Modeling Prep API every hour
+- **🔍 Advanced Filtering**: Search by politician, ticker, trade type, date ranges
+- **📈 Performance Analytics**: Track politician trading statistics and insights  
+- **🏛️ Comprehensive Database**: Normalized PostgreSQL schema with trade and politician data
+- **🔐 Authentication**: JWT-based user management with secure registration/login
 
-### Technical Excellence
-- **🧪 100% Test Coverage** - Comprehensive test suite with pytest
-- **🐳 Docker Containerization** - Multi-service deployment ready
-- **⚡ High Performance** - Async operations with SQLAlchemy 2.0
-- **🔒 Security Best Practices** - Password hashing, input validation, CORS protection
-- **📖 Auto-Generated Documentation** - Interactive API docs at `/docs`
+### **Basic Trading Bot (New Feature)**
+- **🤖 Simple Copy Trading**: Automatically copies trades from politicians you follow
+- **⚡ Automated Processing**: Checks for new congressional trades every 30 minutes
+- **🛡️ Basic Risk Management**: Configurable trade size limits and politician filtering
+- **📱 API Control**: Start/stop bot and view basic status via REST endpoints
+- **🧪 Paper Trading**: Safe testing with Alpaca's paper trading environment
 
-## 🛠️ Tech Stack
+## 🏗️ Architecture
 
-**Backend Framework:** FastAPI + Uvicorn  
-**Database:** PostgreSQL with SQLAlchemy ORM  
-**Authentication:** JWT tokens with bcrypt password hashing  
-**Background Jobs:** Celery with Redis broker  
-**External API:** Financial Modeling Prep (FMP) integration  
-**Testing:** pytest with 100% pass rate  
-**Containerization:** Docker + docker-compose  
-**Code Quality:** Type hints, async/await, comprehensive error handling  
+**Technology Stack:**
+- **FastAPI + Uvicorn** - Async web framework with auto-generated docs
+- **PostgreSQL** - ACID-compliant financial data storage  
+- **Celery + Redis** - Background task processing and automation
+- **Alpaca Trading API** - Stock trading execution (paper trading default)
+- **Docker** - Containerized multi-service deployment
+
+### **🔄 Data Flow Architecture**
+
+```
+┌─────────────────────┐    ┌──────────────────────┐    ┌─────────────────────┐
+│                     │    │                      │    │                     │
+│      Users          │◀───│     FastAPI          │◀───│   PostgreSQL        │
+│   (Web/API          │    │   Web Server         │    │   Database          │
+│   Requests)         │    │   + Auth System      │    │   (Trade Data)      │
+│                     │    │                      │    │                     │
+└─────────────────────┘    └──────────────────────┘    └─────────────────────┘
+                                                                    ▲
+                                                                    │
+┌─────────────────────┐    ┌──────────────────────┐    ┌─────────────────────┐
+│                     │    │                      │    │                     │
+│   Financial         │───▶│   Celery Workers     │───▶│    Redis Task       │
+│   Modeling Prep     │    │   (Background        │    │    Queue + Cache    │
+│   (Congressional    │    │   Data Sync +        │    │                     │
+│   Trade Data)       │    │   Trading Bot)       │    │                     │
+└─────────────────────┘    └──────────────────────┘    └─────────────────────┘
+                                      │                           ▲
+                                      ▼                           │
+┌─────────────────────┐    ┌──────────────────────┐              │
+│                     │    │                      │              │
+│   Alpaca Trading    │◀───│   Celery Beat        │──────────────┘
+│   API               │    │   (Task Scheduler)   │
+│   (Stock Execution) │    │   - Every 30min      │
+│                     │    │   - Trade Processing │
+└─────────────────────┘    └──────────────────────┘
+```
+
+**System Flow:**
+1. **Celery Beat** schedules background tasks (hourly sync + 30min bot processing)
+2. **Celery Workers** fetch new congressional trades from **FMP API**
+3. **Workers** store normalized data in **PostgreSQL**
+4. **Workers** process new trades for active trading bots
+5. **Workers** execute trades via **Alpaca API** when conditions are met
+6. **FastAPI** serves stored data and manages user requests
+7. **Redis** manages task queues and caches API responses
+
+## 📊 Available Endpoints
+
+### **Congressional Data (Original Features)**
+```http
+GET  /                              # API info and available endpoints
+GET  /health                        # System health check
+GET  /api/trades                    # Browse congressional trades (with filters)
+GET  /api/politicians               # List politicians with stats
+GET  /api/politicians/{id}/trades   # Specific politician's trades  
+GET  /api/analytics/summary         # Trading summary statistics
+```
+
+### **Authentication**
+```http
+POST /auth/register                 # Create new user account
+POST /auth/login                    # Get JWT authentication token
+GET  /auth/me                       # View current user profile
+```
+
+### **Trading Bot (New)**
+```http
+POST /api/trading/account/connect   # Connect your Alpaca account
+POST /api/trading/bot/start         # Start the trading bot
+GET  /api/trading/bot/status        # View bot status and basic stats
+```
 
 ## 🚦 Quick Start
 
-### Prerequisites
-- Python 3.9+
-- PostgreSQL 15+
-- Redis 7+
-- Docker & Docker Compose (for containerized deployment)
-
-### 1. Clone & Setup
+### **1. Get API Keys (Required)**
 ```bash
-git clone https://github.com/yourusername/congressional-trading-backend.git
-cd congressional-trading-backend
+# Financial Modeling Prep (congressional data)
+# Sign up at: https://financialmodelingprep.com/
+FMP_API_KEY=your_fmp_api_key
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # or `venv\Scripts\activate` on Windows
-
-# Install dependencies
-pip install -r requirements.txt
+# Alpaca (stock trading - paper trading is free)  
+# Sign up at: https://alpaca.markets/
+ALPACA_API_KEY=your_alpaca_key
+ALPACA_SECRET_KEY=your_alpaca_secret
 ```
 
-### 2. Database Setup
+### **2. Environment Setup**
 ```bash
-# Run migrations
-alembic upgrade head
+# Clone and setup
+git clone [your-repo-url]
+cd congressional-trading-backend
 
-# Start the application
+# Copy environment file
+cp .env.example .env
+# Add your API keys to .env file
+
+# Option 1: Docker (Recommended)
+docker-compose up --build
+
+# Option 2: Manual setup  
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 python -m app.main
 ```
 
-### 3. Docker Deployment (Recommended)
+### **3. Basic Usage**
 ```bash
-# Create .env.docker
-touch .env.docker
-# Start all services
-docker-compose up --build
-
-# API will be available at http://localhost:8000
-# Interactive docs at http://localhost:8000/docs
-```
-
-## 📚 API Documentation
-
-### Authentication Endpoints
-```http
-POST /auth/register     # User registration
-POST /auth/login        # User authentication
-GET  /auth/me           # Current user profile
-```
-
-### Trading Data Endpoints
-```http
-GET  /api/trades                    # List all trades (with filters)
-GET  /api/trades?politician=Pelosi  # Filter by politician
-GET  /api/trades?ticker=AAPL        # Filter by stock ticker
-GET  /api/politicians               # List all politicians
-GET  /api/politicians/{id}/trades   # Specific politician's trades
-```
-
-### Analytics Endpoints
-```http
-GET  /api/analytics/summary         # Trading summary statistics
-GET  /admin/system-status          # System health (protected)
-POST /admin/sync-trades            # Manual data sync (protected)
-```
-
-### Example API Calls
-```bash
-# Register new user
+# Register user account
 curl -X POST "http://localhost:8000/auth/register" \
-     -H "Content-Type: application/json" \
-     -d '{"email": "user@example.com", "password": "secure123", "full_name": "John Doe"}'
+  -H "Content-Type: application/json" \
+  -d '{"email": "you@email.com", "password": "secure123"}'
 
-# Login and get JWT token
+# Login to get token
 curl -X POST "http://localhost:8000/auth/login" \
-     -H "Content-Type: application/json" \
-     -d '{"email": "user@example.com", "password": "secure123"}'
+  -H "Content-Type: application/json" \
+  -d '{"email": "you@email.com", "password": "secure123"}'
 
-# Get recent trades
-curl "http://localhost:8000/api/trades?limit=10"
+# Connect Alpaca account
+curl -X POST "http://localhost:8000/api/trading/account/connect" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{"api_key": "YOUR_ALPACA_KEY", "secret_key": "YOUR_ALPACA_SECRET"}'
 
-# Filter trades by politician
-curl "http://localhost:8000/api/trades?politician=Nancy%20Pelosi"
+# Start trading bot
+curl -X POST "http://localhost:8000/api/trading/bot/start" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+## 🤖 How the Trading Bot Works
+
+### **Current Implementation (Basic)**
+1. **Data Collection**: System fetches new congressional trades every hour via FMP API
+2. **Trade Processing**: Every 30 minutes, Celery task checks for unprocessed trades
+3. **Filtering Logic**: 
+   - Only copies trades from politicians you follow (default: Nancy Pelosi)
+   - Only processes "Buy" orders (skips sells)
+   - Minimum trade size: $15,000
+4. **Position Sizing**: Your trade = 10% of politician's trade amount (max $1,000)
+5. **Execution**: Places market order via Alpaca API in paper trading mode
+
+### **Example Trading Flow**
+```
+Nancy Pelosi buys $50,000 of AAPL
+↓
+Bot processes within 30 minutes  
+↓
+Your account: Market buy $1,000 of AAPL (capped at max)
+↓
+Trade recorded in bot_trades table
+```
+
+### **Bot Status Response**
+```json
+{
+  "is_active": true,
+  "total_trades": 3,
+  "total_pnl": 0.0,
+  "followed_politicians": ["Nancy Pelosi"]
+}
+```
+
+## 🛡️ Safety Features
+
+**Built-in Risk Management:**
+- ✅ **Paper Trading Default** - No real money at risk initially
+- ✅ **Position Limits** - Max $1,000 per trade (configurable in settings)
+- ✅ **Trade Filtering** - Only significant trades ($15k+) from followed politicians  
+- ✅ **Authentication Required** - All bot endpoints require valid JWT tokens
+- ✅ **Manual Control** - Start/stop bot anytime via API
+
+## 🔧 Configuration Options
+
+**Environment Variables:**
+```bash
+# Core settings
+FMP_API_KEY=your_fmp_key
+ALPACA_API_KEY=your_alpaca_key  
+ALPACA_SECRET_KEY=your_alpaca_secret
+ALPACA_PAPER_TRADING=true           # Set false for live trading
+ENABLE_TRADING_BOT=true             # Master enable/disable
+
+# Security
+JWT_SECRET_KEY=your-secure-key-32-chars-min
+DATABASE_URL=postgresql://user:pass@host:port/db
+```
+
+**Database Models Added:**
+- `trading_accounts` - Stores user Alpaca API credentials
+- `bot_settings` - User preferences and followed politicians  
+- `bot_trades` - Record of all bot-executed trades
+- `trades.processed_for_trading` - Tracks which congressional trades have been processed
+
+## 📋 Project Structure (Updated)
+
+```
+congressional-trading-backend/
+├── app/
+│   ├── main.py                     # FastAPI app + trading router
+│   ├── models.py                   # Database models (+ 3 new trading tables)
+│   ├── auth.py                     # JWT authentication
+│   ├── fmp_client.py              # Congressional data fetching
+│   ├── alpaca_client.py           # NEW: Alpaca trading integration
+│   ├── trading_service.py         # NEW: Core trading logic  
+│   ├── trading_endpoints.py       # NEW: Trading API routes
+│   ├── trading_tasks.py           # NEW: Background automation
+│   ├── services.py                # Congressional data processing
+│   └── tasks.py                   # Celery task scheduling (+ trading task)
+├── tests/                         # Test suite (original)
+├── requirements.txt               # Dependencies (+ alpaca-py, pandas, numpy)
+├── docker-compose.yml             # Multi-service deployment
+└── README.md                      # This file
 ```
 
 ## 🧪 Testing
 
-Run the comprehensive test suite:
-
+### **Test Your Setup**
 ```bash
-# Run all tests
+# Test Alpaca connection
+python -m app.alpaca_client
+
+# Check API endpoints
+curl http://localhost:8000/docs
+
+# Monitor background tasks
+celery -A app.tasks inspect active
+
+# Run existing test suite
 pytest tests/ -v
-
-# Run with coverage report
-pytest tests/ --cov=app --cov-report=html
-
-# Run specific test categories
-pytest tests/test_api.py -v           # API endpoint tests
-pytest tests/test_services.py -v     # Business logic tests
 ```
 
-**Test Coverage:** 100% pass rate across authentication, API endpoints, database operations, and business logic.
-
-## 🏗️ Architecture
-
-### Directory Structure
-```
-congressional-trading-backend/
-├── app/
-│   ├── main.py              # FastAPI application entry point
-│   ├── auth.py              # JWT authentication system
-│   ├── models.py            # SQLAlchemy database models
-│   ├── services.py          # Business logic layer
-│   ├── tasks.py             # Celery background jobs
-│   ├── config.py            # Configuration management
-│   ├── database.py          # Database connection setup
-│   └── fmp_client.py        # Financial Modeling Prep API client
-├── tests/                   # Comprehensive test suite
-├── docker-compose.yml       # Multi-service Docker setup
-├── Dockerfile              # Application containerization
-└── requirements.txt        # Python dependencies
-```
-
-### Data Flow
-```
-FMP API → Background Jobs → PostgreSQL → FastAPI → Client Applications
-    ↓           ↑               ↓           ↑
-   Redis ← → Celery        Analytics ← → Authentication
-```
-
-## 🔧 Configuration
-
-### Environment Variables
+### **Verify Trading Bot**
 ```bash
-# Database
-DATABASE_URL=postgresql://user:pass@host:port/dbname
+# Check if bot is processing trades
+curl "http://localhost:8000/api/trades?limit=5"
 
-# Security
-JWT_SECRET_KEY=your-jwt-secret-key-minimum-32-characters
-DEBUG=false
+# Monitor bot status
+curl -H "Authorization: Bearer TOKEN" \
+     "http://localhost:8000/api/trading/bot/status"
 
-# External APIs (Required)
-FMP_API_KEY=your-financial-modeling-prep-api-key
-
-# Background Jobs
-REDIS_URL=redis://localhost:6379/0
-
-# Application
-PROJECT_NAME=Congressional Trading API
-ENVIRONMENT=production
-ALLOWED_ORIGINS=["https://yourdomain.com"]
+# Check database for bot trades
+# (Connect to PostgreSQL and query bot_trades table)
 ```
 
-**Getting FMP API Key:**
-1. Sign up at [Financial Modeling Prep](https://financialmodelingprep.com/)
-2. Get your free API key from the dashboard
-3. Add it to your `.env` or `.env.docker` file
+## ⚖️ Legal Disclaimer
 
-### Database Schema
-- **Users:** Authentication and user management
-- **Politicians:** Congressional member profiles and statistics
-- **Trades:** Individual stock transactions with full metadata
-- **Optimized indexes** for common query patterns
+**Important Notice:**
+- 📚 **Educational Purpose**: This software is for learning and research
+- ⚠️ **Not Financial Advice**: Trade at your own risk  
+- 🧪 **Use Paper Trading**: Test thoroughly before considering live trading
+- 🔒 **Secure Your Keys**: API credentials are your responsibility
+- 📋 **Compliance**: Ensure compliance with local trading regulations
 
-## 🚀 Deployment
+**Risk Warning:** Algorithmic trading involves substantial risk of loss. Past performance of politicians does not guarantee future results. Only invest money you can afford to lose.
 
-### Docker Production Deployment
-```bash
-# Production docker-compose
-docker-compose -f docker-compose.prod.yml up -d
+## 🚀 Getting Started
 
-# Health check
-curl http://localhost:8000/health
-```
-
-### Manual Deployment
-```bash
-# Install dependencies
-pip install -r requirements.txt
-
-# Run database migrations
-alembic upgrade head
-
-# Start with Gunicorn (production)
-gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app --bind 0.0.0.0:8000
-
-# Start background worker
-celery -A app.tasks worker --loglevel=info
-
-# Start scheduler
-celery -A app.tasks beat --loglevel=info
-```
-
-## 📈 Performance Features
-
-- **Async Operations:** All I/O operations use async/await for maximum performance
-- **Database Optimization:** Strategic indexes and query optimization
-- **Caching Layer:** Redis caching for frequently accessed data
-- **Connection Pooling:** Efficient database connection management
-- **Background Processing:** Non-blocking data synchronization
-
-## 🔒 Security Features
-
-- **JWT Authentication:** Secure token-based authentication
-- **Password Security:** bcrypt hashing with salt
-- **Input Validation:** Pydantic models for request/response validation
-- **CORS Protection:** Configurable cross-origin request handling
-- **Rate Limiting:** API endpoint protection (configurable)
-- **SQL Injection Prevention:** SQLAlchemy ORM protection
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **Financial Modeling Prep** for providing congressional trading data API
-- **FastAPI** for the excellent async web framework
-- **SQLAlchemy** for robust ORM capabilities
-- **pytest** for comprehensive testing framework
+1. **Set up the basic system** following the Quick Start guide
+2. **Connect your Alpaca paper trading account**  
+3. **Start the bot and monitor its behavior**
+4. **Review trades in the bot_trades table**
+5. **Consider enhancements based on your needs**
 
 ---
-  
-**💼 LinkedIn:** [LinkedIn](https://linkedin.com/in/maxwell-astafyev)
 
----
+**⭐ Star this repo if you found it useful!**
+
+*Built with FastAPI, PostgreSQL, and Alpaca for educational trading automation*
