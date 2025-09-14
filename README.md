@@ -28,7 +28,7 @@ A **FastAPI-based congressional trading analytics platform** with a **basic auto
 
 **Technology Stack:**
 - **FastAPI + Uvicorn** - Async web framework with auto-generated docs
-- **PostgreSQL** - ACID-compliant financial data storage  
+- **PostgreSQL** - Financial data storage  
 - **Celery + Redis** - Background task processing and automation
 - **Alpaca Trading API** - Stock trading execution (paper trading default)
 - **Docker** - Containerized multi-service deployment
@@ -211,12 +211,6 @@ ENABLE_TRADING_BOT=true             # Master enable/disable
 JWT_SECRET_KEY=your-secure-key-32-chars-min
 DATABASE_URL=postgresql://user:pass@host:port/db
 ```
-
-**Database Models Added:**
-- `trading_accounts` - Stores user Alpaca API credentials
-- `bot_settings` - User preferences and followed politicians  
-- `bot_trades` - Record of all bot-executed trades
-- `trades.processed_for_trading` - Tracks which congressional trades have been processed
 
 ## 📋 Project Structure (Updated)
 
