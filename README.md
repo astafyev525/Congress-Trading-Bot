@@ -1,4 +1,4 @@
-# Congressional Trading Analytics + Basic Trading Bot 🏛️📊
+# Congressional Trading Analytics + Trading Bot 🏛️📊
 
 A **FastAPI-based congressional trading analytics platform** with a **basic automated trading bot** that can mirror congressional stock trades using Alpaca API integration.
 
